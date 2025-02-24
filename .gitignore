@@ -3,9 +3,9 @@
 venv/
 ENV/
 
-# YOLO model files (can be downloaded)
-models/*.weights
-models/*.cfg
+models/
+training_data/
+cache/
 
 # Python
 __pycache__/

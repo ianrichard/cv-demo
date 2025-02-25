@@ -71,7 +71,7 @@ cell phone
 #toaster
 #sink
 #refrigerator
-#book
+book
 #clock
 #vase
 #scissors

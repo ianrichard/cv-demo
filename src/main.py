@@ -1,8 +1,10 @@
 import cv2
 import time
+import numpy as np
 from detection.model import YOLOModel
 from detection.face_model import FaceModel
 from visualization.draw import draw_bounding_boxes
+from visualization.text_utils import add_status_text  # Import the new utility
 from config import YOLOConfig
 from app.app_manager import AppManager
 from app.camera_manager import CameraManager
@@ -64,6 +66,9 @@ def main():
                     detection_mgr.classes
                 )
 
+                # Add status text - using the imported utility
+                output_frame = add_status_text(output_frame, app)
+
                 cv2.imshow('Object Detection', output_frame)
 
                 # Handle keyboard input
@@ -73,6 +78,10 @@ def main():
                     break
                 elif key == ord('c'):
                     cap = camera_mgr.switch_camera()
+                elif key == ord('f'):
+                    app.toggle_face_detection()
+                elif key == ord('o'):
+                    app.toggle_object_detection()
 
             except KeyboardInterrupt:
                 print('\nInterrupt received')

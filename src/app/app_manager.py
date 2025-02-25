@@ -10,6 +10,10 @@ class AppManager:
         self.cap = None
         self.setup_signal_handlers()
         
+        # Feature toggle flags
+        self.face_detection_enabled = True
+        self.object_detection_enabled = True
+        
         # Threading components
         self.face_queue = queue.Queue(maxsize=1)
         self.face_result_queue = queue.Queue(maxsize=1)
@@ -52,3 +56,17 @@ class AppManager:
             daemon=True
         )
         self.face_thread.start()
+        
+    def toggle_face_detection(self):
+        """Toggle face detection on/off"""
+        self.face_detection_enabled = not self.face_detection_enabled
+        status = "enabled" if self.face_detection_enabled else "disabled"
+        print(f"Face detection {status}")
+        return self.face_detection_enabled
+        
+    def toggle_object_detection(self):
+        """Toggle object detection on/off"""
+        self.object_detection_enabled = not self.object_detection_enabled
+        status = "enabled" if self.object_detection_enabled else "disabled"
+        print(f"Object detection {status}")
+        return self.object_detection_enabled

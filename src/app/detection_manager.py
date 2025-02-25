@@ -51,16 +51,22 @@ class DetectionManager:
         """Process a frame with YOLO and face detection"""
         from config import YOLOConfig
         
-        # YOLO detection at normal interval
-        if current_time - self.last_yolo_detection_time >= YOLOConfig.DETECTION_INTERVAL:
+        # YOLO detection at normal interval (if enabled)
+        if self.app_manager.object_detection_enabled and current_time - self.last_yolo_detection_time >= YOLOConfig.DETECTION_INTERVAL:
             self.last_yolo_results = self.yolo_model.detect_objects(frame)
             self.last_yolo_detection_time = current_time
+        elif not self.app_manager.object_detection_enabled:
+            # Clear YOLO results when disabled
+            self.last_yolo_results = ([], [], [])
         
-        # Submit frames for face detection at specified interval
-        if current_time - self.last_face_submission_time >= self.face_interval:
+        # Submit frames for face detection at specified interval (if enabled)
+        if self.app_manager.face_detection_enabled and current_time - self.last_face_submission_time >= self.face_interval:
             if self.app_manager.face_queue.empty():  # Only if queue is empty
                 self.app_manager.face_queue.put(frame.copy())
                 self.last_face_submission_time = current_time
+        elif not self.app_manager.face_detection_enabled:
+            # Clear face results when disabled
+            self.last_face_results = ([], [], [])
         
         # Check for face detection results
         try:

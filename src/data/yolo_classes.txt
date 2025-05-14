@@ -1,6 +1,6 @@
 #person
 #bicycle
-car
+#car
 #motorcycle
 #airplane
 #bus
@@ -65,16 +65,16 @@ banana
 #mouse
 #remote
 keyboard
-cell phone
+#cell phone
 #microwave
 #oven
 #toaster
 #sink
 #refrigerator
-book
+#book
 #clock
 #vase
 #scissors
-teddy bear
+#teddy bear
 #hair drier
-toothbrush
+#toothbrush

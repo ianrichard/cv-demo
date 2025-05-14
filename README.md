@@ -30,6 +30,8 @@ python src/main.py
 ## Controls
 - Press 'c' to switch between cameras (built-in/USB)
 - Press 'q' to quit
+- Press 'f' to toggle face detection
+- Press 'o' to toggle object detection
 
 ## Testing Camera Sources
 To find available cameras:

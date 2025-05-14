@@ -1,7 +1,10 @@
 import os
 import time
 import queue
+import cv2
+import numpy as np
 from utils.result_processor import ResultProcessor
+from config import YOLOConfig
 
 class DetectionManager:
     def __init__(self, app_manager, yolo_model, face_model):
@@ -27,7 +30,6 @@ class DetectionManager:
     
     def load_classes(self, faces_dir="training_data/faces"):
         """Load YOLO and face recognition classes"""
-        from config import YOLOConfig
         
         # Load YOLO classes
         with open(YOLOConfig.CLASSES_FILE, 'r') as f:
@@ -48,13 +50,43 @@ class DetectionManager:
         return self.classes
     
     def process_frame(self, frame, current_time):
-        """Process a frame with YOLO and face detection"""
-        from config import YOLOConfig
+        """Process a frame with YOLO and face detection at optimal resolutions"""
         
         # YOLO detection at normal interval (if enabled)
         if self.app_manager.object_detection_enabled and current_time - self.last_yolo_detection_time >= YOLOConfig.DETECTION_INTERVAL:
-            self.last_yolo_results = self.yolo_model.detect_objects(frame)
+            # Resize frame for YOLO processing (if different from YOLO input size)
+            h, w = frame.shape[:2]
+            if w != YOLOConfig.YOLO_PROCESS_WIDTH or h != YOLOConfig.YOLO_PROCESS_HEIGHT:
+                yolo_frame = cv2.resize(frame, (YOLOConfig.YOLO_PROCESS_WIDTH, YOLOConfig.YOLO_PROCESS_HEIGHT))
+                original_dims = (w, h)  # Store original dimensions for scaling results
+            else:
+                yolo_frame = frame
+                original_dims = None
+                
+            # Run YOLO detection
+            yolo_results = self.yolo_model.detect_objects(yolo_frame)
+            
+            # Scale results back to original frame dimensions if needed
+            if original_dims:
+                boxes, class_ids, confidences = yolo_results
+                scaled_boxes = []
+                for box in boxes:
+                    x, y, w, h = box
+                    x_scale = original_dims[0] / YOLOConfig.YOLO_PROCESS_WIDTH
+                    y_scale = original_dims[1] / YOLOConfig.YOLO_PROCESS_HEIGHT
+                    scaled_box = [
+                        int(x * x_scale),
+                        int(y * y_scale),
+                        int(w * x_scale),
+                        int(h * y_scale)
+                    ]
+                    scaled_boxes.append(scaled_box)
+                self.last_yolo_results = (scaled_boxes, class_ids, confidences)
+            else:
+                self.last_yolo_results = yolo_results
+                
             self.last_yolo_detection_time = current_time
+        
         elif not self.app_manager.object_detection_enabled:
             # Clear YOLO results when disabled
             self.last_yolo_results = ([], [], [])
